@@ -1,0 +1,62 @@
+name: MC Decompiler Loop
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 每天 UTC 00:00
+  workflow_dispatch:
+
+concurrency:
+  group: mc-decompiler-loop
+  cancel-in-progress: false
+
+jobs:
+  decompile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 280 # 4h 40m 硬超时
+    env:
+      TARGET_REPO_PATH: ${{ github.workspace }}/target_repo
+      GH_PAT: ${{ secrets.GH_PAT }} # 必须配置 Secret
+      TARGET_REPO: ${{ secrets.TARGET_REPO }}
+
+    steps:
+      - name: Checkout Script Repo (Self)
+        uses: actions/checkout@v6
+        # 默认检出到 github.workspace，即当前目录
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Setup Java 25
+        uses: setup-java/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Download nfrt.jar
+        run: |
+          wget $(cat nfrt-url.txt) -O nfrt.jar
+
+      - name: Checkout Target Repo (Private)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TARGET_REPO }}       # 替换为你的目标仓库
+          token: ${{ env.GH_PAT }}
+          path: ${{ env.TARGET_REPO_PATH }}
+          fetch-depth: 0               # 重要：获取完整历史以打 tag
+
+      - name: Run Decompiler Logic
+        run: |
+          python3 scripts/logic.py
+        env:
+          TARGET_REPO_PATH: ${{ env.TARGET_REPO_PATH }}
+
+      - name: Force Push on Time Limit Failure
+        if: failure()
+        run: |
+          echo "Workflow failed or timed out. Attempting final push..."
+          cd ${{ env.TARGET_REPO_PATH }}
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git push origin main --tags || true

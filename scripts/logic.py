@@ -99,7 +99,7 @@ def parse_properties(path: str) -> dict:
 
 def run_command(cmd: list, cwd=None):
     print(f"Running: {' '.join(cmd)}")
-    subprocess.run(cmd, check=True, cwd=cwd)
+    subprocess.run(cmd, check=True, cwd=cwd, capture_output=True)
 
 def process_version(version: str, work_dir: str):
     print(f"\n=== Processing {version} ===")

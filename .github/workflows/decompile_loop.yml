@@ -29,7 +29,7 @@ jobs:
           python-version: '3.13'
 
       - name: Setup Java 25
-        uses: setup-java/setup-java@v5
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'

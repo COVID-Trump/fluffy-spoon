@@ -13,7 +13,8 @@ def get_latest(base_version: str, versions):
     
     # Special case
     if base_version == '1.21.11':
-        base_version = '1.21.11_unobfuscated'   # We want the parameter & local variable table
+        pass    # Using 1.21.11_unobfuscated causes problems
+        # base_version = '1.21.11_unobfuscated'   # We want the parameter & local variable table
 
     best_version = None
     best_parts = None
@@ -75,7 +76,7 @@ def main():
 
     try:
         req = urllib.request.Request(api_url)
-        req.add_header('User-Agent', 'Python-NeoForm-Latest-Script')
+        req.add_header('User-Agent', 'teddyxlandlee/fluffy-spoon/1')
         
         with urllib.request.urlopen(req, timeout=10) as response:
             if response.status != 200:

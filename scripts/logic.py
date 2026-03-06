@@ -23,7 +23,7 @@ PROPERTIES_FILE = os.path.join(SCRIPT_DIR, '..', 'versions.properties')
 
 _version_cache: Optional[List[dict]] = None
 
-_DEBUG = True
+_DEBUG = False
 
 def _fetch_manifest() -> List[dict]:
     global _version_cache
@@ -31,7 +31,7 @@ def _fetch_manifest() -> List[dict]:
         return _version_cache
     
     req = urllib.request.Request(MOJANG_MANIFEST_URL)
-    req.add_header('User-Agent', 'MC-Decompiler-Bot')
+    req.add_header('User-Agent', 'COVID-Trump/fluffy-spoon/1')
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read().decode('utf-8'))
         _version_cache = data.get('versions', [])
@@ -94,7 +94,7 @@ def parse_properties(path: str) -> dict:
             if '=' in line:
                 k, v = line.split('=', 1)
                 props[k.strip()] = v.strip()
-    print(f'{props=}')
+    if _DEBUG: print(f'{props=}')
     return props
 
 def run_command(cmd: list, cwd=None):
@@ -122,10 +122,9 @@ def process_version(version: str, work_dir: str):
     # 注意：请根据 nfrt 实际参数调整。这里假设 version 需要通过 --version 传入
     cmd = [
         'java', '-jar', os.path.join(work_dir, 'nfrt.jar'), 'run',
-        '--version', version,
         '--dist=joined',
-        '--neoform', f'net.neoforged:{neoform_ver}@zip',
-        '--write-result', os.path.join(work_dir, 'src.zip')
+        '--neoform', f'net.neoforged:neoform:{neoform_ver}@zip',
+        '--write-result', "gameSources:" + os.path.join(work_dir, 'src.zip')
     ]
     
     run_command(cmd, cwd=work_dir)

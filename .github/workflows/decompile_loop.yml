@@ -46,6 +46,11 @@ jobs:
           path: ${{ env.TARGET_REPO_PATH }}
           fetch-depth: 0               # 重要：获取完整历史以打 tag
 
+      - name: Set committer info
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@noreply.github.com'
+
       - name: Run Decompiler Logic
         run: |
           python3 scripts/logic.py

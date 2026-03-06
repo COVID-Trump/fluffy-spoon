@@ -5,7 +5,7 @@ import re
 import urllib.request
 import urllib.error
 
-_SUFFIX_PATTERN = re.compile(r"^-(\d+)(?:\.(\d+))?$")
+_SUFFIX_PATTERN = re.compile(r"^(\d+)(?:\.(\d+))?$")
 
 def get_latest(base_version: str, versions):
     if not base_version or not versions:

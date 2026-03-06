@@ -19,9 +19,11 @@ VERSION_FILE = os.path.join(TARGET_REPO_PATH, 'version.txt')
 
 # 脚本所在目录 (用于寻找 versions.properties 和 LatestNeoForm.py)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROPERTIES_FILE = os.path.join(SCRIPT_DIR, 'versions.properties')
+PROPERTIES_FILE = os.path.join(SCRIPT_DIR, '..', 'versions.properties')
 
 _version_cache: Optional[List[dict]] = None
+
+_DEBUG = True
 
 def _fetch_manifest() -> List[dict]:
     global _version_cache
@@ -38,6 +40,7 @@ def _fetch_manifest() -> List[dict]:
 def _get_version_time(vid: str, manifest: List[dict]) -> Optional[datetime]:
     for v in manifest:
         if v.get('id') == vid:
+            if _DEBUG: print('{ts=}')
             ts = v.get('releaseTime')
             if ts:
                 if ts.endswith('Z'): ts = ts[:-1] + '+00:00'
@@ -48,6 +51,7 @@ def list_mc_versions(_from: Optional[str], _to: Optional[str], releases_only: bo
     manifest = _fetch_manifest()
     from_time = _get_version_time(_from, manifest) if _from else None
     to_time = _get_version_time(_to, manifest) if _to else None
+    if _DEBUG: print(f'{from_time=} {to_time=}')
     
     candidates = []
     for v in manifest:
@@ -81,6 +85,7 @@ def get_last_processed_version() -> Optional[str]:
 def parse_properties(path: str) -> dict:
     props = {}
     if not os.path.exists(path):
+        if _DEBUG: print(f'os.path.not_exists({path})')
         return props
     with open(path, 'r') as f:
         for line in f:
@@ -89,6 +94,7 @@ def parse_properties(path: str) -> dict:
             if '=' in line:
                 k, v = line.split('=', 1)
                 props[k.strip()] = v.strip()
+    print(f'{props=}')
     return props
 
 def run_command(cmd: list, cwd=None):
@@ -118,7 +124,7 @@ def process_version(version: str, work_dir: str):
         'java', '-jar', os.path.join(work_dir, 'nfrt.jar'), 'run',
         '--version', version,
         '--dist=joined',
-        f'--neoform', f'net.neoforged:{neoform_ver}@zip',
+        '--neoform', f'net.neoforged:{neoform_ver}@zip',
         '--write-result', os.path.join(work_dir, 'src.zip')
     ]
     

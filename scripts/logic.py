@@ -21,6 +21,11 @@ VERSION_FILE = os.path.join(TARGET_REPO_PATH, 'version.txt')
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROPERTIES_FILE = os.path.join(SCRIPT_DIR, '..', 'versions.properties')
 
+# 下列版本无法被NeoForm识别
+VERSIONS_IGNORE = (
+    '26w14a',
+)
+
 _version_cache: Optional[List[dict]] = None
 
 _DEBUG = False
@@ -61,6 +66,8 @@ def list_mc_versions(_from: Optional[str], _to: Optional[str], releases_only: bo
         
         if not vid or not ts_str: continue
         if releases_only and vtype != 'release': continue
+
+        if vid in VERSIONS_IGNORE: continue
         
         try:
             if ts_str.endswith('Z'): ts_str = ts_str[:-1] + '+00:00'
